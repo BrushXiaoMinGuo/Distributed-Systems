@@ -20,6 +20,12 @@ func doMap(
 	nReduce int, // the number of reduce task that will be run ("R" in the paper)
 	mapF func(file string, contents string) []KeyValue,
 ) {
+	
+	//step 1: read file
+	contect, err := ioutil.ReadFile(inFile)
+	if err != nil {
+		fmt.Println("read file error")
+	}
 	// TODO:
 	// You will need to write this function.
 	// You can find the filename for this map task's input to reduce task number
