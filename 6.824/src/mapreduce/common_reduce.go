@@ -18,6 +18,58 @@ func doReduce(
 	nMap int, // the number of map tasks that were run ("M" in the paper)
 	reduceF func(key string, values []string) string,
 ) {
+	//read map generate file, and same key merge into map[string][] string
+	kvs := make(map[string][]string)
+	for i:=0;i<nMap;i++ {
+		filename := reduceName(jobName,i,reduceTaskNumber)
+		file, err := os.Open(filename)
+		if err != nil {
+			log.Fatal("doRecuce ", err)
+		}
+		dec := json.NewDecoder(file)
+
+		for{
+			var kv KeyValue
+			err := dec.Decode(&kv)
+			if err !=nil {
+				break;
+			}
+			_, ok := kvs[kv.key]
+			if !ok {
+				kvs[kv.key] = []string{}
+			}
+			kvs[kv.key] = append(kvs[kv.key], kv.value)
+		}
+		file.Close()
+
+	}
+
+	//dict sort key
+	var keys []string
+	for k:= range kvs{
+		keys = append(keys, k)
+	}
+	sort.string(keys)
+
+	// output
+	p := mergeName(jobName, reduceTaskNumber)
+	file, err := os.Create(p)
+	if err != nil {
+		log.Fatal("create p error", err)
+	}
+
+	enc := json.NewEncoder(file)
+	for _, k := range keys{
+		res := reduceF(k, kvs[k])
+		enc.Encode(KeyValue{key, res})
+	}
+	file.Close()
+
+
+
+
+
+
 	// TODO:
 	// You will need to write this function.
 	// You can find the intermediate file for this reduce task from map task number
