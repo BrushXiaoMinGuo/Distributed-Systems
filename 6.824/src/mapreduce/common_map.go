@@ -22,9 +22,40 @@ func doMap(
 ) {
 	
 	//step 1: read file
-	contect, err := ioutil.ReadFile(inFile)
+	contects, err := ioutil.ReadFile(inFile)
 	if err != nil {
 		fmt.Println("read file error")
+	}
+
+	//step2 call user-map method, get kv
+	kvresult := mapF(inFile,contects)
+
+	//step3 use k of kv generator nreduce file,partition
+	//1: creat tempfile
+	//2: creat encoder for tempfile to write contents
+	//3: partition by key,then write tempfile
+	var tempfiles [] *os.File = make([] *os.File, nReduce)
+	var encoders [] *json.Encoder = make([] *json.Encoder, nReduce)
+
+	for i:=0; i<nReduce; i++ {
+		tmpFileName := reduceName(jobName, mapTaskNumber, i)
+		tempfiles[i], err = os.Create(tmpFileName)
+		if err != nil{
+			log.Fatal("map err1 ", err)
+		}
+		defer tempfiles[i].Close()
+		encoders[i],err = json.NewEncoder(tempfiles[i])
+		if err != nil{
+			log.Fatal("map err2", err)
+		}		
+	}
+
+	for _, kv := range kvresult{
+		hashkey := int(ihash(kv.key)) % nReduce
+		err := encoders[hashkey].Encode(&kv)
+		if err!= nil{
+			log.Fatal("map err3", err)
+		}
 	}
 	// TODO:
 	// You will need to write this function.
