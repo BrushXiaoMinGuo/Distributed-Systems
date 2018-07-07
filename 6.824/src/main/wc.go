@@ -6,7 +6,7 @@ import (
 	"os"
 	"strings"
 	"strconv"
-	"log"
+	//"log"
 	"unicode"
 )
 
@@ -15,6 +15,16 @@ import (
 // and the value is the file's contents. The return value should be a slice of
 // key/value pairs, each represented by a mapreduce.KeyValue.
 func mapF(document string, value string) (res []mapreduce.KeyValue) {
+	f := func(c rune) bool {
+		return !unicode.IsLetter(c) && !unicode.IsNumber(c)
+	}
+
+	words := strings.FieldsFunc(value, f)
+
+	for _, key := range words {
+		res = append(res, mapreduce.KeyValue{key, "1"})
+	}
+	return res
 	// 在wordcount的例子中mapF的功能应该是string中获取到单词（关注下strings.FieldsFunc打用法吧），
 	// 返回的结构应该类似KeyValue{w, "1"}
 }
@@ -24,14 +34,28 @@ func mapF(document string, value string) (res []mapreduce.KeyValue) {
 // should be a single output value for that key.
 func reduceF(key string, values []string) string {
 	// TODO: you also have to write this function
+	count := 0
+	for _, value := range values {
+		num, _ := strconv.ParseInt(value, 10, 64)
+		count = count + int(num)
+	}
+	return strconv.Itoa(count)
+	// TODO: you also have to write this function
 	// reduceF对每个key调用，然后处理values,在这个例子中，相加全部的１就是单词出现打次数来
+}
+
+func Mapf{
+	fmt.Printf("ddd")
 }
 
 // Can be run in 3 ways:
 // 1) Sequential (e.g., go run wc.go master sequential x1.txt .. xN.txt)
 // 2) Master (e.g., go run wc.go master localhost:7777 x1.txt .. xN.txt)
 // 3) Worker (e.g., go run wc.go worker localhost:7777 localhost:7778 &)
+
 func main() {
+	mapFtest()
+	reduceFtest()
 	if len(os.Args) < 4 {
 		fmt.Printf("%s: see usage comments in file\n", os.Args[0])
 	} else if os.Args[1] == "master" {

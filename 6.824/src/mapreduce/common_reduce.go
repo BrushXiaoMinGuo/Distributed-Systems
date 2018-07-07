@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"os"
 	"encoding/json"
-	"io"
 	"log"
+	"sort"
 )
 
 // doReduce does the job of a reduce worker: it reads the intermediate
@@ -34,11 +34,11 @@ func doReduce(
 			if err !=nil {
 				break;
 			}
-			_, ok := kvs[kv.key]
+			_, ok := kvs[kv.Key]
 			if !ok {
-				kvs[kv.key] = []string{}
+				kvs[kv.Key] = []string{}
 			}
-			kvs[kv.key] = append(kvs[kv.key], kv.value)
+			kvs[kv.Key] = append(kvs[kv.Key], kv.Value)
 		}
 		file.Close()
 
@@ -49,7 +49,8 @@ func doReduce(
 	for k:= range kvs{
 		keys = append(keys, k)
 	}
-	sort.string(keys)
+	fmt.Println("log log")
+	sort.Strings(keys)
 
 	// output
 	p := mergeName(jobName, reduceTaskNumber)
@@ -61,7 +62,7 @@ func doReduce(
 	enc := json.NewEncoder(file)
 	for _, k := range keys{
 		res := reduceF(k, kvs[k])
-		enc.Encode(KeyValue{key, res})
+		enc.Encode(KeyValue{k, res})
 	}
 	file.Close()
 

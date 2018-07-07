@@ -5,7 +5,7 @@ import (
 	"io/ioutil"
 	"os"
 	"encoding/json"
-	"fmt"
+	"log"
 )
 
 // doMap does the job of a map worker: it reads one of the input files
@@ -24,11 +24,11 @@ func doMap(
 	//step 1: read file
 	contects, err := ioutil.ReadFile(inFile)
 	if err != nil {
-		fmt.Println("read file error")
+		log.Fatal("read file error", err)
 	}
 
 	//step2 call user-map method, get kv
-	kvresult := mapF(inFile,contects)
+	kvresult := mapF(inFile, string(contects))
 
 	//step3 use k of kv generator nreduce file,partition
 	//1: creat tempfile
@@ -44,14 +44,14 @@ func doMap(
 			log.Fatal("map err1 ", err)
 		}
 		defer tempfiles[i].Close()
-		encoders[i],err = json.NewEncoder(tempfiles[i])
+		encoders[i]= json.NewEncoder(tempfiles[i])
 		if err != nil{
 			log.Fatal("map err2", err)
 		}		
 	}
 
 	for _, kv := range kvresult{
-		hashkey := int(ihash(kv.key)) % nReduce
+		hashkey := int(ihash(kv.Key)) % nReduce
 		err := encoders[hashkey].Encode(&kv)
 		if err!= nil{
 			log.Fatal("map err3", err)
