@@ -7,9 +7,9 @@ RPC goals:
  
 一个典型的demo，将网络通讯变得像方法调用:             
   Client:          
-    z = fn(x, y)           
+    z = fn(x, y)            
   Server:          
-    fn(x, y) {         
+    fn(x, y) {          
       compute         
       return z         
     }           
@@ -64,13 +64,13 @@ Q: is at-least-once ever OK?
   idea: 服务器返回之前的响应，而不是重新运行         
   Q: 如何发现相同请求             
   客户端包含一个XID，重发的时候使用相同的XID           
-  server:
-    if seen[xid]:
-      r = old[xid]
-    else
-      r = handler()
-      old[xid] = r
-      seen[xid] = true
+  server:          
+    if seen[xid]:         
+      r = old[xid]          
+    else        
+      r = handler()       
+      old[xid] = r        
+      seen[xid] = true           
 
 至多一次的复杂性        
   如何确保XID唯一?         
