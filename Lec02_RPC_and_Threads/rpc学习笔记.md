@@ -60,12 +60,10 @@ Q: is at-least-once ever OK?
   yes: if application has its own plan for coping w/ duplicates
     which you will need for Lab 1
 
-Better RPC behavior: "at most once"
-  idea: server RPC code detects duplicate requests
-    returns previous reply instead of re-running handler
-  Q: how to detect a duplicate request?
-  client includes unique ID (XID) with each request
-    uses same XID for re-send
+更好的关于“至多一次”：
+  idea: 服务器返回之前的响应，而不是重新运行
+  Q: 如何发现相同请求
+  客户端包含一个XID，重发的时候使用相同的XID
   server:
     if seen[xid]:
       r = old[xid]
@@ -74,13 +72,12 @@ Better RPC behavior: "at most once"
       old[xid] = r
       seen[xid] = true
 
-some at-most-once complexities
-  this will come up in labs 2 and on
-  how to ensure XID is unique?
-    big random number?
-    combine unique client ID (ip address?) with sequence #?
-  server must eventually discard info about old RPCs
-    when is discard safe?
+至多一次的复杂性
+  如何确保XID唯一?
+    很大的随机数
+    包含客户端的id
+  服务端必须最后丢弃老的rpc请求
+    什么时候丢弃
     idea:
       unique client IDs
       per-client RPC sequence numbers
